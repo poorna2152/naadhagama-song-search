@@ -1,0 +1,53 @@
+{
+    "name": "sinhala-song-search-ui",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "@emotion/react": "^11.10.4",
+        "@emotion/styled": "^11.10.4",
+        "@formkit/auto-animate": "^1.0.0-beta.3",
+        "@mui/icons-material": "^5.10.6",
+        "@mui/material": "^5.10.7",
+        "@testing-library/jest-dom": "^5.14.1",
+        "@testing-library/react": "^13.0.0",
+        "@testing-library/user-event": "^13.2.1",
+        "axios": "^0.27.2",
+        "bootstrap": "^5.2.1",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-helmet": "^6.1.0",
+        "react-loader-spinner": "^5.3.4",
+        "react-material-ui-carousel": "^3.4.2",
+        "react-redux": "^8.0.4",
+        "react-router-dom": "^6.4.1",
+        "react-scripts": "5.0.1",
+        "react-swipeable-views": "^0.14.0",
+        "redux": "^4.2.0",
+        "sass": "^1.55.0",
+        "web-vitals": "^2.1.0"
+    },
+    "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    }
+}
