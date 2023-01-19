@@ -19,6 +19,8 @@ router.post('/', async function (req, res) {
     let n_named_entity_fields = 3
     let n_named_keyword_fields = 4
     let domains = []
+    let metaphor_part = []
+    let found = False
     tokens.forEach(token => {
         stems.forEach(stem => {
             token = token.replace(stem, '')
@@ -26,6 +28,7 @@ router.post('/', async function (req, res) {
         for (let index = 0; index < n_named_entity_fields; index++) {
             if (named_entities[fields[index]].includes(token)) {
                 boosted_fields[index] += 1;
+                found = True
             }
         }
 
@@ -33,15 +36,21 @@ router.post('/', async function (req, res) {
             if (keywords[fields[index]].includes(token)) {
                 boosted_fields[index] += 1;
                 tokens_to_remove.push(token);
+                found = True
             }
         }
 
         if (named_entities.domains.includes(token)) {
             domains.push(token)
+            found = True
         }
 
         if (keywords.songs.includes(token) || keywords.connecting_words.includes(token)) {
             tokens_to_remove.push(token);
+            found = True
+        }
+        if (!found) {
+            metaphor_part.push(token)
         }
     });
 
@@ -58,11 +67,12 @@ router.post('/', async function (req, res) {
     console.log(domains_removed.length)
     let result;
     if (domains.length && domains_removed.length) {
-        console.log("here")
-        let filter_arr = []
-        domains.forEach(domain => filter_arr.push({ term: { "metaphors.domain": domain }}))
+        domains.forEach(domain =>  {
+            filter_arr.push({ match: { "metaphors.domain": domain }})
+            filter_arr.push({ match: { "metaphors.target": domain }})}
+            )
         result = await client.search({
-            index: 'test-lyrics',
+            index: 'sinhala_song_metaphors',
             body: {
                 size: size,
                 _source: {
@@ -72,20 +82,70 @@ router.post('/', async function (req, res) {
                     bool: {
                       must: {
                         multi_match: {
-                          query: domains_removed,
+                          query: query,
                           fields: [`title^1`, `singer^${boosted_fields[0]}`, `lyricist^${boosted_fields[1]}`, `composer^${boosted_fields[2]}`, `metaphors.target^${boosted_fields[3]}`, `metaphors.domain^${boosted_fields[3]}`, `metaphors.domain^${boosted_fields[3]}`],
                         }
                       },
-                      filter: filter_arr
+                      filter: {
+                        nested: {
+                                path: "metaphors",
+                                query: {
+                                    bool: {
+                                        should: filter_arr
+                                    }
+                                },
+                                inner_hits: {
+                                    highlight: {
+                                        fields: [
+                                            {"metaphors.domain": {} },
+                                            {"metaphors.target": {} }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                  }
+                }
+        })
+    }
+    else if (domains.length && !domains_removed.length) {
+        let filter_arr = []
+        domains.forEach(domain =>  {
+            filter_arr.push({ match: { "metaphors.domain": domain }})
+            filter_arr.push({ match: { "metaphors.target": domain }})}
+            )
+        result = await client.search({
+            index: 'sinhala_song_metaphors',
+            body: {
+                size: size,
+                _source: {
+                    includes: ["singer", "title", "lyricist", "composer", "lyrics", "metaphors"]
+                },
+                query: {
+                    nested: {
+                        path: "metaphors",
+                        query: {
+                            bool: {
+                                should: filter_arr
+                            }
+                        },
+                        inner_hits: {
+                            highlight: {
+                                fields: [
+                                    {"metaphors.domain": {} },
+                                    {"metaphors.target": {} }
+                                ]
+                            }
+                        }
+                    }
                     }
                 }
-            }
         })
     }
     else {
-        console.log("else")
         result = await client.search({
-            index: 'test-lyrics',
+            index: 'sinhala_song_metaphors',
             body: {
                 size: size,
                 _source: {
@@ -102,6 +162,7 @@ router.post('/', async function (req, res) {
             }
         });
     }
+    console.log(JSON.stringify(result.hits))
     res.send({
         hits: result.hits
     });

@@ -18,7 +18,7 @@ export default function ResultTable({ rows }) {
               key={row.name}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
-              <MetaphorCard key={row.id} state={row._source} />{" "}
+              <MetaphorCard key={row.id} state={row._source} metaphors={row.inner_hits} />
             </TableRow>
           ))}
         </TableBody>

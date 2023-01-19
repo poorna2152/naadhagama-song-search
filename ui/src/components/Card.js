@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import MetaphorTable from "./Metaphors";
 
-export default function MetaphorCard({ state }) {
+export default function MetaphorCard({ state, metaphors }) {
   return (
     <div>
       <Accordion>
@@ -29,7 +29,7 @@ export default function MetaphorCard({ state }) {
               <Typography variant="body2" sx={{ fontSize: 10 }}>
                 රචක: {state.lyricist.join(", ")}
               </Typography>
-              <MetaphorTable rows={state.metaphors} />
+              <MetaphorTable rows={state.metaphors} metaphors={metaphors} />
             </CardContent>
           </Card>
         </AccordionSummary>
