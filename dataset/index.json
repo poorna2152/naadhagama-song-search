@@ -9,13 +9,17 @@
                 "sinhala_analyzer": {
                     "type": "custom",
                     "tokenizer": "standard",
-                    "filter": ["custom_stopper"]
+                    "filter": ["custom_stopper", "custom_stems"]
                 }
             },
             "filter": {
                 "custom_stopper": {
                     "type": "stop",
                     "stopwords_path": "config/analyze/stopwords.txt"
+                },
+                "custom_stems": {
+                    "type": "stemmer_override",
+                    "rules_path": "config/analyze/stem.txt"
                 }
             }
         }

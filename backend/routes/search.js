@@ -17,10 +17,10 @@ router.post("/", async function (req, res) {
   var query = req.body.query;
   var tokens = query.length > 0 ? query.trim().split(" ") : "";
   var size = 100;
-  let stems = ["ගේ", "යන්ගේ"];
+  let stems = ["ගේ", "යන්ගේ", "යෙන්"];
   let tokens_to_remove = [];
   let fields = ["singers", "lyricists", "composers", "metaphors"];
-  let boosted_fields = [1, 1, 1, 1];
+  let boosted_fields = [1, 1, 1, 3];
   let n_named_entity_fields = 3;
   let n_named_keyword_fields = 4;
   let domains = [];
@@ -81,16 +81,17 @@ router.post("/", async function (req, res) {
     `composer^${boosted_fields[2]}`,
     `metaphors.target^${boosted_fields[3]}`,
     `metaphors.domain^${boosted_fields[3]}`,
-    `metaphors.domain^${boosted_fields[3]}`,
+    `metaphors.interpretation^${boosted_fields[3]}`,
   ];
   if (domains.length && domains_removed.length) {
+    console.log("1")
     let filter_arr = [];
     domains.forEach((domain) => {
       filter_arr.push({ match: { "metaphors.domain": domain } });
       filter_arr.push({ match: { "metaphors.target": domain } });
     });
     result = await client.search({
-      index: "sinhala_song_metaphors",
+      index: "sinhala_song_metaphor",
       body: {
         size: size,
         _source: {
@@ -111,13 +112,14 @@ router.post("/", async function (req, res) {
       },
     });
   } else if (domains.length && !domains_removed.length) {
+    console.log("2")
     let filter_arr = [];
     domains.forEach((domain) => {
       filter_arr.push({ match: { "metaphors.domain": domain } });
       filter_arr.push({ match: { "metaphors.target": domain } });
     });
     result = await client.search({
-      index: "sinhala_song_metaphors",
+      index: "sinhala_song_metaphor",
       body: {
         size: size,
         _source: {
@@ -134,8 +136,9 @@ router.post("/", async function (req, res) {
       },
     });
   } else {
+    console.log("3")
     result = await client.search({
-      index: "sinhala_song_metaphors",
+      index: "sinhala_song_metaphor",
       body: {
         size: size,
         _source: {

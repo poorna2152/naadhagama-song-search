@@ -1,3 +1,6 @@
+// Multi match query and filter the result to remove the unwanted results obtained from query.
+// eg: Search for metaphors in a particular domain and in the result the result since we are
+// retrieving songs and there metaphors remove unwanted domains from a song
 const getMultiMatchWithNestedFilter = (query, b_fields, filter_arr) => {
   return {
     bool: {
@@ -26,6 +29,7 @@ const getMultiMatchWithNestedFilter = (query, b_fields, filter_arr) => {
   };
 };
 
+// Similar filtering for above but here search query is only done for a metaphor domain
 const getNestedMetaphorQuery = (filter_arr) => {
   return {
     nested: {
@@ -44,6 +48,7 @@ const getNestedMetaphorQuery = (filter_arr) => {
   };
 };
 
+// search query without metaphor domain with singer, lyricist, composer names
 const getBasicMultiMatch = (query, b_fields ) => {
     return {
         multi_match: {
