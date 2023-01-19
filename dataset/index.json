@@ -1,0 +1,65 @@
+{
+    "settings": {
+        "index": {
+            "number_of_shards": 1,
+            "number_of_replicas": 1
+        },
+        "analysis": {
+            "analyzer": {
+                "sinhala_analyzer": {
+                    "type": "custom",
+                    "tokenizer": "standard",
+                    "filter": ["custom_stopper"]
+                }
+            },
+            "filter": {
+                "custom_stopper": {
+                    "type": "stop",
+                    "stopwords_path": "config/analyze/stopwords.txt"
+                }
+            }
+        }
+    },
+    "mappings": {
+        "properties": {
+            "id": {
+                "type": "integer"
+            },
+            "title": {
+                "type": "text",
+                "fields": { "keyword": { "type": "keyword" } },
+                "analyzer": "sinhala_analyzer"
+            },
+            "singer": {
+                "type": "text",
+                "fields": { "keyword": { "type": "keyword" } },
+                "analyzer": "sinhala_analyzer"
+            },
+            "lyricist": {
+                "type": "text",
+                "fields": { "keyword": { "type": "keyword" } },
+                "analyzer": "sinhala_analyzer"
+            },
+            "composer": {
+                "type": "text",
+                "fields": { "keyword": { "type": "keyword" } },
+                "analyzer": "sinhala_analyzer"
+            },
+            "album": {
+                "type": "text",
+                "fields": { "keyword": { "type": "keyword" } },
+                "analyzer": "sinhala_analyzer"
+            },
+            "year": {
+                "type": "integer"
+            },
+            "lyrics": {
+                "type": "text",
+                "analyzer": "sinhala_analyzer"
+            },
+            "metaphors": {
+                "type": "nested"
+            }
+        }
+    }
+}
