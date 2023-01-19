@@ -6,6 +6,7 @@ const {
   getBasicMultiMatch,
   getMultiMatchWithNestedFilter,
   getNestedMetaphorQuery,
+  updatedMultiMatch,
 } = require("./query");
 
 const client = new Client({ node: config.ELASTICS_SEARCH_CLIENT });
@@ -26,6 +27,7 @@ router.post("/", async function (req, res) {
   let domains = [];
   let metaphor_part = [];
   let found = false;
+  // Tokenizing and Boosting
   tokens.forEach((token) => {
     stems.forEach((stem) => {
       token = token.replace(stem, "");
@@ -71,8 +73,6 @@ router.post("/", async function (req, res) {
   });
   query = query.trim();
   domains_removed = domains_removed.trim();
-  console.log(query);
-  console.log(domains_removed.length);
   let result;
   let formatted_b_fields = [
     `title^1`,
@@ -84,7 +84,6 @@ router.post("/", async function (req, res) {
     `metaphors.interpretation^${boosted_fields[3]}`,
   ];
   if (domains.length && domains_removed.length) {
-    console.log("1")
     let filter_arr = [];
     domains.forEach((domain) => {
       filter_arr.push({ match: { "metaphors.domain": domain } });
@@ -112,7 +111,6 @@ router.post("/", async function (req, res) {
       },
     });
   } else if (domains.length && !domains_removed.length) {
-    console.log("2")
     let filter_arr = [];
     domains.forEach((domain) => {
       filter_arr.push({ match: { "metaphors.domain": domain } });
@@ -135,8 +133,7 @@ router.post("/", async function (req, res) {
         query: getNestedMetaphorQuery(filter_arr),
       },
     });
-  } else {
-    console.log("3")
+  } else if (!metaphor_part.length) {
     result = await client.search({
       index: "sinhala_song_metaphor",
       body: {
@@ -151,11 +148,28 @@ router.post("/", async function (req, res) {
             "metaphors",
           ],
         },
-        query: getBasicMultiMatch(query, formatted_b_fields)
+        query: getBasicMultiMatch(query, formatted_b_fields),
+      },
+    });
+  } else {
+    result = await client.search({
+      index: "sinhala_song_metaphor",
+      body: {
+        size: size,
+        _source: {
+          includes: [
+            "singer",
+            "title",
+            "lyricist",
+            "composer",
+            "lyrics",
+            "metaphors",
+          ],
+        },
+        query: updatedMultiMatch(query, formatted_b_fields),
       },
     });
   }
-//   console.log(JSON.stringify(result.hits));
   res.send({
     hits: result.hits,
   });

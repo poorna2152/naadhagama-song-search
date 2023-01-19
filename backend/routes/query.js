@@ -60,4 +60,47 @@ const getBasicMultiMatch = (query, b_fields ) => {
     }
 }
 
-module.exports = { getBasicMultiMatch, getMultiMatchWithNestedFilter, getNestedMetaphorQuery }
+const updatedMultiMatch = (query, b_fields) => {
+  return {
+    bool: {
+      should: [
+        {
+          nested: {
+            path: "metaphors",
+            query: {
+              bool: {
+                should: [
+                  { match: { "metaphors.domain": query } },
+                  { match: { "metaphors.interpretation": query } },
+                  { match: { "metaphors.target": query } },
+                ],
+              },
+            },
+            inner_hits: {
+              highlight: {
+                fields: [
+                  { "metaphors.domain": {} },
+                  { "metaphors.target": {} },
+                ],
+              },
+            },
+          },
+        },
+        {
+          multi_match: {
+            query: query,
+            fields: b_fields,
+            operator: "or",
+            type: "best_fields",
+          },
+        },
+      ],
+    },
+  };
+};
+module.exports = {
+  getBasicMultiMatch,
+  getMultiMatchWithNestedFilter,
+  getNestedMetaphorQuery,
+  updatedMultiMatch,
+};
