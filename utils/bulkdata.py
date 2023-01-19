@@ -1,9 +1,6 @@
-from elasticsearch import Elasticsearch, helpers, exceptions
+from elasticsearch import Elasticsearch, helpers
 from elasticsearch_dsl import Index
-import json, re
-import codecs
-import unicodedata
-# import queries
+import json
 
 client = Elasticsearch(HOST="http://localhost", PORT=9200, request_timeout=60)
 INDEX = 'test-lyrics'
@@ -14,14 +11,6 @@ def create_index_if_not_exists():
     index = Index(INDEX, using=client)
     res = index.create()
     print(res)
-    # try:
-    #     index = Index(INDEX, using=client)
-    #     index.create(index)
-    # except exceptions.RequestError as ex:
-    #     if ex.error == 'resource_already_exists_exception':
-    #         pass
-    #     else:
-    #         raise ex
 
 def read_all_songs():
     with open('dataset/song-lyric.json', 'r', encoding='utf-8-sig') as f:
@@ -30,8 +19,6 @@ def read_all_songs():
 
 def genData(song_array):
     for song in song_array:
-        # Fields-capturing
-        print(song)
         title = song.get("title", None)
         singer = song.get("singer",None)
         lyricist = song.get("lyricist", None)
@@ -56,7 +43,5 @@ def genData(song_array):
         }
 
 create_index_if_not_exists()
-# print("index created")
 all_songs = read_all_songs()
-# print(all_songs)
 helpers.bulk(client,genData(all_songs))
